@@ -308,7 +308,7 @@ public class BlackJackGui {
 				resetGame();
 				
 			}
-			
+			// if you win automatically..
 			if (val == 21) {
 				int money = getBankVal();
 				money += (2 * riskVal);
