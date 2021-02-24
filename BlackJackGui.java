@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 
+
 /**
  * 
  */
@@ -47,13 +48,16 @@ public class BlackJackGui {
 	
 	private ArrayList<JToggleButton> myCardsButton = new ArrayList<JToggleButton>();
 	private ArrayList<JToggleButton> dealerCardsButton = new ArrayList<JToggleButton>();
+	private ArrayList<Card> cardList = new ArrayList<Card>();
 	private ButtonHandler[] handlers = new ButtonHandler[4]; 
 	
 	private int playerCards[] = { 0 , 0 , 0 , 0 , 0 , 0 , 0 ,0 , 0 , 0 , 0 , 0 , 0};
 
 
+	int count = 0;
+	int val = 0;
 	private int bankVal = 5000;
-	private int riskVal = 100;
+	private int riskVal = 0;
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -83,7 +87,7 @@ public class BlackJackGui {
 		frame.getContentPane().add(dealerCardsPanel,BorderLayout.NORTH);
 		frame.getContentPane().add(cardsPanel,BorderLayout.SOUTH);
 		frame.getContentPane().add(background, BorderLayout.CENTER);
-		frame.setSize(800,300);
+		frame.pack();
 		frame.setVisible(true);
 		
 	}
@@ -128,8 +132,11 @@ public class BlackJackGui {
 		
 		for (int i =0; i < 7; i++) {
 			JToggleButton tb = new JToggleButton();
+			Card c = new Card(tb);
+			cardList.add(c);
 			tb.setIcon(CARD_BLANK);
 			myCardsButton.add(tb);
+			
 			
 			cardsPanel.add(tb);
 			
@@ -172,6 +179,17 @@ public class BlackJackGui {
 		return hitOrStayPanel;
 	}
 	
+	private void resetGame() {
+		for (int i = 0; i < playerCards.length; i++) {
+			playerCards[i] = 0;
+		}
+		
+		for (Card c : cardList) {
+			c.setImage(CARD_BLANK);;
+		}
+		count = 0;
+		val = 0;
+	}
 	/**
 	 * creates the bank and risk 
 	 * it display the amount in a label and the risk in a label
@@ -206,7 +224,20 @@ public class BlackJackGui {
 	public int getBankVal() {
 		return bankVal;
 	}
+	public void setBankVal(int bankVal) {
+		this.bankVal = bankVal;
+	}
 	
+	
+	public int getRiskVal() {
+		return riskVal;
+	}
+
+	public void setRiskVal(int riskVal) {
+		this.riskVal = riskVal;
+	}
+
+
 	class AllButtonListener implements ActionListener {
 
 		@Override
@@ -236,50 +267,65 @@ public class BlackJackGui {
 	 */
 	class HitButtonListener implements ActionListener {
 
+
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-
-			int count = 0;
-			int val = 0;
-			
-			// Go over playerCards and check the total value
-			// Check how many cards player has
-			for (int i =0; i < playerCards.length; i++) {
-				if (playerCards[i] > 0) {
-					val = (i + 1) * playerCards[i];
-					count++;
-				}
-			}
 
 			// generates 2 cards and add it to playerCards[]
 			if (count == 0) {
 				for (int i = 0; i < 2; i++) {
-					JToggleButton thisCard = myCardsButton.get(i);	
-					Card c = new Card();
-					c.shuffle();
-					playerCards[c.getValue() - 1]++;
-					thisCard.setIcon(c.getImage());
-					if (c.getValue() > 10)
-						c.setValue(10);
+					Card thisCard = cardList.get(i);	
+					thisCard.shuffle();
+					playerCards[thisCard.getValue() - 1]++;
+					thisCard.updateImage();
+					if (thisCard.getValue() == 1) {
+						thisCard.setValue(11);
+						val += thisCard.getValue();
+						count++;
+						continue;
+						
+					}
+					if (thisCard.getValue() > 10)
+						thisCard.setValue(10);
+					val += thisCard.getValue();
+					count++;
 				}
 			} else { // generates a card and add it to playerCards[]
-				JToggleButton card = myCardsButton.get(count);
-				Card c = new Card();
-				c.shuffle();
-				card.setIcon(c.getImage());
-				playerCards[c.getValue() - 1]++;
-				if (c.getValue() > 10)
-					c.setValue(10);
-				}
-			if (val > 21) 
-				System.out.println("You Lost");
+				Card thisCard = cardList.get(count);	
+				thisCard.shuffle();
+				playerCards[thisCard.getValue() - 1]++;
+				thisCard.updateImage();
+				if (thisCard.getValue() > 10)
+					thisCard.setValue(10);
+				val += thisCard.getValue();
+				count++;
+			}
+			if (val > 21) {
+				JOptionPane.showMessageDialog(null, "You lost!");
+				setRiskVal(0);
+				riskText.setText("0");
+				resetGame();
+				
+			}
 			
-			if (val == 21)
-				System.out.println("You Win");
+			if (val == 21) {
+				int money = getBankVal();
+				money += (2 * riskVal);
+				setBankVal(money);
+				bankText.setText(String.valueOf(money));
+				setRiskVal(0);
+				riskText.setText("0");
+				
+				JOptionPane.showMessageDialog(null, "You win!");
+				resetGame();
+			}
+			
+
 			else {
 				System.out.println(val);
 			}
+			System.out.println(count);
 
 		}
 	}

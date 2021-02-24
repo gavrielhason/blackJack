@@ -1,4 +1,5 @@
 import javax.swing.ImageIcon;
+import javax.swing.JToggleButton;
 
 /**
  * 
@@ -14,8 +15,12 @@ public class Card {
 	 * @param args
 	 */
 	private int value;
+	private JToggleButton myCard;
 
 
+	private final ImageIcon CARD_BLANK = 
+			new ImageIcon(getClass().getResource("/blank.png"));
+	
 	private final ImageIcon CARD_1 = 
 			new ImageIcon(getClass().getResource("/1.png"));
 	private final ImageIcon CARD_2 = 
@@ -61,6 +66,10 @@ public class Card {
 		// TODO Auto-generated method stub
 
 	}
+	public Card(JToggleButton card) {
+		myCard = card;
+		shuffle();
+	}
 	
 	/**
 	 * 
@@ -92,6 +101,13 @@ public class Card {
 	
 	public ImageIcon getImage() {
 		return CARD_IMAGES[value - 1];
+	}
+
+	public void updateImage() {
+		myCard.setIcon(getImage());
+	}
+	public void setImage(ImageIcon image) {
+		myCard.setIcon(image);
 	}
 
 }
