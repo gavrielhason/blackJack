@@ -1,9 +1,9 @@
 
-
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -69,12 +69,33 @@ public class BlackJackGui {
 		new BlackJackGui().go();
 	}
 
+	/**
+	 * a getter and setters for bankVal,riskVal
+	 * @return bankVal is how much left in the bank
+	 */
+	public int getBankVal() {
+		return bankVal;
+	}
+
+	public void setBankVal(int bankVal) {
+		this.bankVal = bankVal;
+	}
+
+	public int getRiskVal() {
+		return riskVal;
+	}
+
+	public void setRiskVal(int riskVal) {
+		this.riskVal = riskVal;
+	}
+
 	private void go() {
 		// TODO Auto-generated method stub
 		frame = new JFrame("BlackJack Game");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		background = new JPanel();
 		background.setLayout(new GridLayout(1,3));
+		
 		
 
 		createMoneyButtons();
@@ -92,10 +113,68 @@ public class BlackJackGui {
 		frame.getContentPane().add(dealerCardsPanel,BorderLayout.NORTH);
 		frame.getContentPane().add(cardsPanel,BorderLayout.SOUTH);
 		frame.getContentPane().add(background, BorderLayout.CENTER);
+
+		setupMenu();
 		frame.pack();
 		frame.setVisible(true);
 		
 	}
+	private void setupMenu() {
+		JMenuBar menu = new JMenuBar();
+		
+		// Create new Game menu
+		JMenu gameMenu = new JMenu("Game");
+		JMenu viewMenu = new JMenu("View");
+	
+		
+		// Add the 'Game' to menu
+		menu.add(gameMenu);
+				
+		//Add the 'View' to menu
+		menu.add(viewMenu);
+		
+		// add new Game item
+		JMenuItem newGameItem = new JMenuItem("New Game");
+		gameMenu.add(newGameItem);
+		
+		JMenuItem exitGameItem = new JMenuItem("Exit Game", KeyEvent.VK_X);
+		gameMenu.add(exitGameItem);
+		
+		
+		//new Game listener
+		newGameItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			newGame();	
+			}
+			
+		});
+		
+		// Set CTRL-X as a keyboard shortcut
+		exitGameItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_X, ActionEvent.CTRL_MASK
+				));
+		
+		exitGameItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				int result = JOptionPane.showOptionDialog(frame,"Are you sure you want to exit?", "BlackJack - Exit Game",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE,null,null,
+						JOptionPane.NO_OPTION);
+				if (result == JOptionPane.YES_OPTION)
+					System.exit(0);
+					
+			}
+		});
+		
+		
+		frame.setJMenuBar(menu);
+		
+		
+	
+	}
+
 	/**
 	 * Create the Buttons and add listeners to them
 	 * @return buttonPanel is the panel of the buttons
@@ -187,21 +266,6 @@ public class BlackJackGui {
 		return hitOrStayPanel;
 	}
 	
-	private void resetGame() {
-		disableMoneyButtons(false);		
-
-		
-		for (Card c : cardList) {
-			c.setImage(CARD_BLANK);;
-		}
-		for (Card c : dealerCardList) {
-			c.setImage(CARD_BLANK);
-		}
-		dealerCounter = 0;
-		dealerVal = 0;
-		count = 0;
-		val = 0;
-	}
 	/**
 	 * creates the bank and risk 
 	 * it display the amount in a label and the risk in a label
@@ -230,26 +294,6 @@ public class BlackJackGui {
 	}
 	
 	/**
-	 * a getter for bankVal
-	 * @return bankVal is how much left in the bank
-	 */
-	public int getBankVal() {
-		return bankVal;
-	}
-	public void setBankVal(int bankVal) {
-		this.bankVal = bankVal;
-	}
-	
-	
-	public int getRiskVal() {
-		return riskVal;
-	}
-
-	public void setRiskVal(int riskVal) {
-		this.riskVal = riskVal;
-	}
-
-	/**
 	 * Stay button listener is activated only if the player already hit once
 	 * It will activate the other dealer and play until he gets card value
 	 * that is greater than 17.
@@ -261,7 +305,7 @@ public class BlackJackGui {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			while (dealerVal <= 17) {
+			while (dealerVal <= 17 && dealerVal < val) {
 
 				newDealerCardGenerator();
 				
@@ -284,11 +328,7 @@ public class BlackJackGui {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-/*			JButton button = (JButton) e.getSource();
-			riskVal =+ Integer.parseInt(button.getText());
-			riskText.setText(String.valueOf(riskVal));
-*/
+
 			for (ButtonHandler h : handlers) {
 				if (h.canHandle((JButton) e.getSource())) {
 					h.setAmount();
@@ -394,6 +434,37 @@ public class BlackJackGui {
 		}
 	}
 	
+	/**
+	 *  TODO EndGame
+	 *  what happened if the player is out of money at the end of the stay round??
+	 *  TODO 
+	 *  Implement it inside the stayListener
+	 */
+	
+	private void newGame() {
+		resetGame();
+		setBankVal(5000);
+		setRiskVal(0);
+		bankText.setText(String.valueOf(getBankVal()));
+		riskText.setText(String.valueOf(getRiskVal()));
+		
+	}
+	private void resetGame() {
+		disableMoneyButtons(false);		
+	
+		
+		for (Card c : cardList) {
+			c.setImage(CARD_BLANK);;
+		}
+		for (Card c : dealerCardList) {
+			c.setImage(CARD_BLANK);
+		}
+		dealerCounter = 0;
+		dealerVal = 0;
+		count = 0;
+		val = 0;
+	}
+
 	private void winScenario() {
 		int money = getBankVal();
 		money += (2 * riskVal);
