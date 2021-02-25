@@ -17,9 +17,6 @@ public class Card {
 	private int value;
 	private JToggleButton myCard;
 
-
-	private final ImageIcon CARD_BLANK = 
-			new ImageIcon(getClass().getResource("/blank.png"));
 	
 	private final ImageIcon CARD_1 = 
 			new ImageIcon(getClass().getResource("/1.png"));

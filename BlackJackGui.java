@@ -47,18 +47,23 @@ public class BlackJackGui {
 	
 	
 	private ArrayList<JToggleButton> myCardsButton = new ArrayList<JToggleButton>();
-	private ArrayList<JToggleButton> dealerCardsButton = new ArrayList<JToggleButton>();
 	private ArrayList<Card> cardList = new ArrayList<Card>();
+	
+	// Dealer stuff
+	private ArrayList<JToggleButton> dealerCardsButton = new ArrayList<JToggleButton>();
+	private ArrayList<Card> dealerCardList = new ArrayList<Card>();
+	int dealerVal = 0;
+	int dealerCounter = 0;
+			
 	private ButtonHandler[] handlers = new ButtonHandler[4]; 
 	
-	private int playerCards[] = { 0 , 0 , 0 , 0 , 0 , 0 , 0 ,0 , 0 , 0 , 0 , 0 , 0};
 
 
 	int count = 0;
 	int val = 0;
 	private int bankVal = 5000;
 	private int riskVal = 0;
-	
+		
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		new BlackJackGui().go();
@@ -148,6 +153,8 @@ public class BlackJackGui {
 		
 		for (int i =0; i < 7; i++) {
 			JToggleButton tb = new JToggleButton();
+			Card c = new Card(tb);
+			dealerCardList.add(c);
 			tb.setIcon(CARD_BLANK);
 			dealerCardsButton.add(tb);
 			
@@ -171,6 +178,7 @@ public class BlackJackGui {
 		doubleIt = new JButton("Double");
 		
 		hit.addActionListener(new HitButtonListener());
+		stay.addActionListener(new StayButtonListener());
 		
 		hitOrStayPanel.add(hit);
 		hitOrStayPanel.add(doubleIt);
@@ -180,13 +188,16 @@ public class BlackJackGui {
 	}
 	
 	private void resetGame() {
-		for (int i = 0; i < playerCards.length; i++) {
-			playerCards[i] = 0;
-		}
+
 		
 		for (Card c : cardList) {
 			c.setImage(CARD_BLANK);;
 		}
+		for (Card c : dealerCardList) {
+			c.setImage(CARD_BLANK);
+		}
+		dealerCounter = 0;
+		dealerVal = 0;
 		count = 0;
 		val = 0;
 	}
@@ -237,7 +248,37 @@ public class BlackJackGui {
 		this.riskVal = riskVal;
 	}
 
+	/**
+	 * Stay button listener is activated only if the player already hit once
+	 * It will activate the other dealer and play until he gets card value
+	 * that is greater than 17.
+	 * it will then decide on the winner
+	 *
+	 */
+	class StayButtonListener implements ActionListener {
 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			while (dealerVal <= 17) {
+
+				newDealerCardGenerator();
+				
+			}
+			if (dealerVal > 21) {
+				winScenario();
+				
+			} else if(dealerVal > val) {
+				loseScenario();
+			} else if (val > dealerVal) {
+				winScenario();
+			}  else if (dealerVal == val) {
+				tieScenario();
+			}
+		}
+		
+	}
+	
 	class AllButtonListener implements ActionListener {
 
 		@Override
@@ -272,62 +313,111 @@ public class BlackJackGui {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			// generates 2 cards and add it to playerCards[]
-			if (count == 0) {
-				for (int i = 0; i < 2; i++) {
-					Card thisCard = cardList.get(i);	
-					thisCard.shuffle();
-					playerCards[thisCard.getValue() - 1]++;
-					thisCard.updateImage();
-					if (thisCard.getValue() == 1) {
-						thisCard.setValue(11);
-						val += thisCard.getValue();
-						count++;
-						continue;
-						
-					}
-					if (thisCard.getValue() > 10)
-						thisCard.setValue(10);
+			newPlayerCardGenerator();
+	
+			if (val > 21) {
+				loseScenario();
+			}
+			// if you win automatically..
+			if (val == 21) {
+				winScenario();
+			} else {
+				System.out.println(val);
+			}
+			System.out.println(count);
+		}
+	}
+	
+	private void newDealerCardGenerator() {
+		boolean isFirstAce = true;
+
+		// generates 2 cards and add it to dealerCards[]
+		if (dealerCounter == 0 ) {
+			for (int i = 0; i < 2; i++) {
+				Card thisCard = dealerCardList.get(i);	
+				thisCard.shuffle();
+				thisCard.updateImage();
+				if (thisCard.getValue() == 1 && isFirstAce) {
+					thisCard.setValue(11);
+					dealerVal += thisCard.getValue();
+					dealerCounter++;
+					isFirstAce = false;
+					continue;
+				
+				}
+				if (thisCard.getValue() > 10)
+					thisCard.setValue(10);
+				dealerVal += thisCard.getValue();
+				dealerCounter++;
+				continue;
+			}
+		} else { // generates a card and add it to playerCards[]
+			Card thisCard = dealerCardList.get(dealerCounter);	
+			thisCard.shuffle();
+			thisCard.updateImage();
+			if (thisCard.getValue() > 10)
+				thisCard.setValue(10);
+			dealerVal += thisCard.getValue();
+			dealerCounter++;
+	//		continue;
+		}
+	}
+	
+	private void newPlayerCardGenerator() {
+		boolean isFirstAce = true;
+		// generates 2 cards and add it to playerCards[]
+		if (count == 0) {
+			for (int i = 0; i < 2; i++) {
+				Card thisCard = cardList.get(i);	
+				thisCard.shuffle();
+				thisCard.updateImage();
+				if (thisCard.getValue() == 1 && isFirstAce) {
+					thisCard.setValue(11);
 					val += thisCard.getValue();
 					count++;
+					continue;					
 				}
-			} else { // generates a card and add it to playerCards[]
-				Card thisCard = cardList.get(count);	
-				thisCard.shuffle();
-				playerCards[thisCard.getValue() - 1]++;
-				thisCard.updateImage();
 				if (thisCard.getValue() > 10)
 					thisCard.setValue(10);
 				val += thisCard.getValue();
 				count++;
 			}
-			if (val > 21) {
-				JOptionPane.showMessageDialog(null, "You lost!");
-				setRiskVal(0);
-				riskText.setText("0");
-				resetGame();
-				
-			}
-			// if you win automatically..
-			if (val == 21) {
-				int money = getBankVal();
-				money += (2 * riskVal);
-				setBankVal(money);
-				bankText.setText(String.valueOf(money));
-				setRiskVal(0);
-				riskText.setText("0");
-				
-				JOptionPane.showMessageDialog(null, "You win!");
-				resetGame();
-			}
-			
-
-			else {
-				System.out.println(val);
-			}
-			System.out.println(count);
-
+		} else { // generates a card and add it to playerCards[]
+			Card thisCard = cardList.get(count);	
+			thisCard.shuffle();
+			thisCard.updateImage();
+			if (thisCard.getValue() > 10)
+				thisCard.setValue(10);
+			val += thisCard.getValue();
+			count++;
 		}
+	}
+	
+	private void winScenario() {
+		int money = getBankVal();
+		money += (2 * riskVal);
+		setBankVal(money);
+		bankText.setText(String.valueOf(money));
+		setRiskVal(0);
+		riskText.setText("0");
+		
+		JOptionPane.showMessageDialog(null, "You win!");
+		resetGame();
+	}
+	
+	private void loseScenario() {
+		JOptionPane.showMessageDialog(null, "You lost!");
+		setRiskVal(0);
+		riskText.setText("0");
+		resetGame();
+	}
+	private void tieScenario() {
+		JOptionPane.showMessageDialog(null,"Its a tie... splitting isn't fun");
+		setBankVal(getRiskVal() + getBankVal());
+		bankText.setText(String.valueOf(getBankVal()));
+		setRiskVal(0);
+		riskText.setText("0");
+		resetGame();
 	}
 	
 	abstract class ButtonHandler {
