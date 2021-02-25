@@ -188,6 +188,7 @@ public class BlackJackGui {
 	}
 	
 	private void resetGame() {
+		disableMoneyButtons(false);		
 
 		
 		for (Card c : cardList) {
@@ -309,7 +310,6 @@ public class BlackJackGui {
 	class HitButtonListener implements ActionListener {
 
 
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
@@ -365,6 +365,7 @@ public class BlackJackGui {
 	
 	private void newPlayerCardGenerator() {
 		boolean isFirstAce = true;
+		disableMoneyButtons(true);		
 		// generates 2 cards and add it to playerCards[]
 		if (count == 0) {
 			for (int i = 0; i < 2; i++) {
@@ -420,6 +421,16 @@ public class BlackJackGui {
 		resetGame();
 	}
 	
+	private void disableMoneyButtons(boolean flag) {
+			for (ButtonHandler h : handlers) {
+				if (flag) {
+					h.disable(flag);
+				} else {
+					h.disable(flag);
+				}
+			}
+	}
+	
 	abstract class ButtonHandler {
 		protected JButton myButton;
 		protected JLabel myRiskText;
@@ -447,6 +458,12 @@ public class BlackJackGui {
 		}
 		public JLabel getMyTextField() {
 			return myRiskText;
+		}
+		public void disable(boolean flag) {
+			if (flag)
+				myButton.setEnabled(false);
+			else 
+				myButton.setEnabled(true);
 		}
 		public boolean canHandle(JButton btn) {
 			boolean isRightButton = false;
