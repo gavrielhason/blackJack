@@ -441,6 +441,11 @@ public class BlackJackGui {
 	 *  Implement it inside the stayListener
 	 */
 	
+	/**
+	 * TODO doubleItListener
+	 * it will allow to double it only after hit once and after total amount is above 12(?)
+	 */
+	
 	private void newGame() {
 		resetGame();
 		setBankVal(5000);
