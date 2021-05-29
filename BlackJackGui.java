@@ -1,8 +1,11 @@
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -109,7 +112,9 @@ public class BlackJackGui {
 
 		setupMenu();
 		frame.pack();
+		center(frame);
 		frame.setVisible(true);
+		
 		
 	}
 	private void setupMenu() {
@@ -178,6 +183,16 @@ public class BlackJackGui {
 		
 		
 	
+	}
+	public static void center (Window window) {
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		
+		int w = window.getSize().width;
+		int h = window.getSize().height;
+		int x = (dim.width - w) / 2;
+		int y = (dim.height - h) / 2;
+		
+		window.setLocation(x,y);
 	}
 
 	/**
@@ -272,6 +287,7 @@ public class BlackJackGui {
 		
 		hit.addActionListener(new HitButtonListener());
 		stay.addActionListener(new StayButtonListener());
+		stay.setEnabled(false);
 		
 		hitOrStayPanel.add(hit);
 		hitOrStayPanel.add(doubleIt);
@@ -392,6 +408,7 @@ public class BlackJackGui {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			stay.setEnabled(true);
 
 			newPlayerCardGenerator();
 			playerValText.setText(String.valueOf(player.getCardsVal()));
@@ -509,6 +526,7 @@ public class BlackJackGui {
 		player.setRiskVal(0);
 		bankText.setText(String.valueOf(player.getBankVal()));
 		riskText.setText(String.valueOf(player.getRiskVal()));
+		stay.setEnabled(false);
 		
 	}
 	private void resetGame() {
@@ -517,6 +535,7 @@ public class BlackJackGui {
 		player.resetSession();
 		dealer.resetSession();
 		playerValText.setText(String.valueOf(player.getCardsVal()));
+		stay.setEnabled(false);
 	}
 
 	private void winScenario() {
