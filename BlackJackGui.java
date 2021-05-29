@@ -444,6 +444,10 @@ public class BlackJackGui {
 		}
 	}
 	
+	/**
+	 * Starts the game with player showing 2 cards and dealer shows his first card
+	 * 
+	 */
 	private void newPlayerCardGenerator() {
 		boolean isFirstAce = true;
 		boolean isFirstAceDealer = true;
