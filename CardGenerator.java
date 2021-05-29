@@ -9,13 +9,16 @@ import javax.swing.JToggleButton;
  * @author gavrielhas
  *
  */
-public class Card {
+public class CardGenerator {
 
 	/**
 	 * @param args
 	 */
 	private int value;
+
 	private JToggleButton myCard;
+
+	
 
 	
 	private final ImageIcon CARD_1 = 
@@ -63,7 +66,10 @@ public class Card {
 		// TODO Auto-generated method stub
 
 	}
-	public Card(JToggleButton card) {
+	public CardGenerator () {
+		shuffle();
+	}
+	public CardGenerator(JToggleButton card) {
 		myCard = card;
 		shuffle();
 	}
@@ -89,12 +95,18 @@ public class Card {
 	}
 	
 	/**
-	 * Sets the value of the card
-	 * @param value of the card
+	 * @return the myCard
 	 */
-	public void setValue(int value) {
-		this.value = value;
+	public JToggleButton getMyCard() {
+		return myCard;
 	}
+	/**
+	 * @param myCard the myCard to set
+	 */
+	public void setMyCard(JToggleButton myCard) {
+		this.myCard = myCard;
+	}
+	
 	
 	public ImageIcon getImage() {
 		return CARD_IMAGES[value - 1];
@@ -106,5 +118,12 @@ public class Card {
 	public void setImage(ImageIcon image) {
 		myCard.setIcon(image);
 	}
+	public void setValue(int i) {
+		// TODO Auto-generated method stub
+		value = i;
+	}
+	
+
+
 
 }
