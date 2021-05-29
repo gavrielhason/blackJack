@@ -1,12 +1,25 @@
 
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
 
 
 
@@ -44,6 +57,8 @@ public class BlackJackGui {
 	JLabel risk;
 	JLabel bankText;
 	JLabel riskText;
+	JLabel playerVal;
+	JLabel playerValText;
 	
 	
 	private ArrayList<JToggleButton> myCardsButton = new ArrayList<JToggleButton>();
@@ -65,26 +80,7 @@ public class BlackJackGui {
 		new BlackJackGui().go();
 	}
 
-	/**
-	 * a getter and setters for bankVal,riskVal
-	 * @r
 
-	public int getBankVal() {
-		return bankVal;
-	}
-
-	public void setBankVal(int bankVal) {
-		this.bankVal = bankVal;
-	}
-
-	public int getRiskVal() {
-		return riskVal;
-	}
-
-	public void setRiskVal(int riskVal) {
-		this.riskVal = riskVal;
-	}
-	*/
 
 	private void go() {
 		// TODO Auto-generated method stub
@@ -293,20 +289,43 @@ public class BlackJackGui {
 	 */
 	private JPanel createBankAndRisk() {
 		bankAndRisk = new JPanel();
-		bankAndRisk.setLayout(new GridLayout(1,4));
+		
+		GridBagLayout gb = new GridBagLayout();
+		bankAndRisk.setLayout(gb);
+		
+		GridBagConstraints labels = new GridBagConstraints();
+		labels.gridx = 0;
+		labels.gridy = 0;
+		labels.weightx = 0.5;
+		labels.weighty = 0.5;
 		
 		
 		bank = new JLabel("Bank: ");
 		bankText = new JLabel();
+		bankAndRisk.add(bank,labels);
+
 		bankText.setText(String.valueOf((player.getBankVal())));
+		labels.gridx++;
+		bankAndRisk.add(bankText,labels);
+		
 		risk = new JLabel("Risk: ");
+		labels.gridx++;
+		bankAndRisk.add(risk,labels);
+		
 		riskText = new JLabel();
 		riskText.setText(String.valueOf(player.getRiskVal()));
+		labels.gridx++;
+		bankAndRisk.add(riskText,labels);
 		
-		bankAndRisk.add(bank);
-		bankAndRisk.add(bankText);
-		bankAndRisk.add(risk);
-		bankAndRisk.add(riskText);
+		
+		playerVal = new JLabel("Cards total: ");
+		labels.gridy++;
+		labels.gridx = 1;
+		bankAndRisk.add(playerVal,labels);
+		
+		playerValText = new JLabel(String.valueOf(player.getCardsVal()));
+		labels.gridx++;
+		bankAndRisk.add(playerValText,labels);
 		
 		return bankAndRisk;
 	}
@@ -323,6 +342,8 @@ public class BlackJackGui {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			CardGenerator previousCard = dealer.getCard(dealer.getCardCount() - 1);
+			previousCard.updateImage();
 			while (dealer.getCardsVal() <= 17 &&
 					dealer.getCardsVal() < player.getCardsVal()) {
 
@@ -373,16 +394,19 @@ public class BlackJackGui {
 		public void actionPerformed(ActionEvent e) {
 
 			newPlayerCardGenerator();
+			playerValText.setText(String.valueOf(player.getCardsVal()));
 	
 			if (player.getCardsVal() > 21) {
+				CardGenerator previousCard = dealer.getCard(dealer.getCardCount() - 1);
+				previousCard.updateImage();
 				loseScenario();
 			}
 			// if you win automatically..
 			if (player.getCardsVal() == 21) {
+				CardGenerator previousCard = dealer.getCard(dealer.getCardCount() - 1);
+				previousCard.updateImage();
 				winScenario();
 			}
-			System.out.println(player.getCardsVal());
-
 		}
 	}
 	
@@ -390,6 +414,7 @@ public class BlackJackGui {
 		boolean isFirstAce = true;
 
 		if (dealer.getCardCount() == 0) {
+			/*
 			for (int i = 0; i < 2; i++) {
 				CardGenerator thisCard = dealer.getCard(i);	
 				thisCard.shuffle();
@@ -404,13 +429,14 @@ public class BlackJackGui {
 				dealer.incrementCardVal(thisCard.getValue());
 			
 			}
+			*/
 		} else { 
 			CardGenerator thisCard = dealer.getCard(dealer.getCardCount());
 			thisCard.shuffle();
 			thisCard.updateImage();
 			if (thisCard.getValue() > 10)
 				thisCard.setValue(10);
-			if (thisCard.getValue() == 1 && (11 + player.getCardsVal()) < 22 ) { // a scenario where ace will be better as 11
+			if (thisCard.getValue() == 1 && (11 + dealer.getCardsVal()) < 22 ) { // a scenario where ace will be better as 11
 				thisCard.setValue(11);
 				
 			}
@@ -420,6 +446,8 @@ public class BlackJackGui {
 	
 	private void newPlayerCardGenerator() {
 		boolean isFirstAce = true;
+		boolean isFirstAceDealer = true;
+
 		disableMoneyButtons(true);		
 
 		if (player.getCardCount() == 0 ) {
@@ -427,15 +455,30 @@ public class BlackJackGui {
 				CardGenerator thisCard = player.getCard(i);
 				thisCard.shuffle();
 				thisCard.updateImage();
+				if (thisCard.getValue() > 10) {
+					thisCard.setValue(10);
+				}
 				if (thisCard.getValue() == 1 && isFirstAce) {
 					thisCard.setValue(11);
 					isFirstAce = false;
 				}
+				player.incrementCardVal(thisCard.getValue());
+
+			}
+			for (int i = 0; i < 2; i++) {
+				CardGenerator thisCard = dealer.getCard(i);	
+				thisCard.shuffle();
+				if (dealer.getCardCount() == 0)
+					thisCard.updateImage();
 				if (thisCard.getValue() > 10) {
 					thisCard.setValue(10);
 				}
-				player.incrementCardVal(thisCard.getValue());
-
+				if (thisCard.getValue() == 1 && isFirstAceDealer) {
+					thisCard.setValue(11);
+					isFirstAceDealer = false;
+				}
+				dealer.incrementCardVal(thisCard.getValue());
+			
 			}
 		} else { 
 			CardGenerator thisCard = player.getCard(player.getCardCount());
@@ -469,6 +512,7 @@ public class BlackJackGui {
 	
 		player.resetSession();
 		dealer.resetSession();
+		playerValText.setText(String.valueOf(player.getCardsVal()));
 	}
 
 	private void winScenario() {
