@@ -545,6 +545,7 @@ public class BlackJackGui {
 		bankText.setText(String.valueOf(money));
 		player.setRiskVal(0);
 		riskText.setText("0");
+		player.isRecord(money);
 		
 		JOptionPane.showMessageDialog(null, "You win!");
 		resetGame();

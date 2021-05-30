@@ -22,6 +22,7 @@ public class Player {
 	private int cardsVal;
 	private final ImageIcon CARD_BLANK = new ImageIcon(getClass().getResource("/blank.png"));
 	private int cardCount;
+	private int record;
 
 
 	public static void main(String[] args) {
@@ -89,5 +90,12 @@ public class Player {
 		cardCount = 0;
 		cardsVal = 0;
 	}
+	
+	public void isRecord(int score) {
+		if (score > record) {
+			record = score;
+		}
+	}
+	
 
 }
