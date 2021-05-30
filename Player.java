@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
@@ -23,6 +24,7 @@ public class Player {
 	private final ImageIcon CARD_BLANK = new ImageIcon(getClass().getResource("/blank.png"));
 	private int cardCount;
 	private int record;
+	private String playerName;
 
 
 	public static void main(String[] args) {
@@ -96,6 +98,16 @@ public class Player {
 			record = score;
 		}
 	}
-	
+	public int getRecord() {
+		return record;
+	}
+	public String getPlayerName() {
+		return playerName;
+	}
+	public void setPlayerName(String playerName) {
+		this.playerName = playerName;
+	}
+
 
 }
+
