@@ -75,8 +75,6 @@ public class BlackJackGui {
 	private ButtonHandler[] handlers = new ButtonHandler[4]; 
 	
 
-
-
 		
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -86,7 +84,12 @@ public class BlackJackGui {
 
 
 	private void go() {
-		// TODO Auto-generated method stub
+		player.setPlayerName(JOptionPane.showInputDialog(frame,"Please enter your name"));
+		if (player.getPlayerName().equals("")) {
+			player.setPlayerName("Boring User");
+			JOptionPane.showMessageDialog(frame, "you are a boring user... THIS IS ON YOU! :(");
+		}
+		
 		frame = new JFrame("BlackJack Game");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		background = new JPanel();
@@ -428,37 +431,16 @@ public class BlackJackGui {
 	}
 	
 	private void newDealerCardGenerator() {
-		boolean isFirstAce = true;
 
-		if (dealer.getCardCount() == 0) {
-			/*
-			for (int i = 0; i < 2; i++) {
-				CardGenerator thisCard = dealer.getCard(i);	
-				thisCard.shuffle();
-				thisCard.updateImage();
-				if (thisCard.getValue() > 10) {
-					thisCard.setValue(10);
-				}
-				if (thisCard.getValue() == 1 && isFirstAce) {
-					thisCard.setValue(11);
-					isFirstAce = false;
-				}
-				dealer.incrementCardVal(thisCard.getValue());
-			
-			}
-			*/
-		} else { 
-			CardGenerator thisCard = dealer.getCard(dealer.getCardCount());
-			thisCard.shuffle();
-			thisCard.updateImage();
-			if (thisCard.getValue() > 10)
-				thisCard.setValue(10);
-			if (thisCard.getValue() == 1 && (11 + dealer.getCardsVal()) < 22 ) { // a scenario where ace will be better as 11
-				thisCard.setValue(11);
-				
-			}
-			dealer.incrementCardVal(thisCard.getValue());
+		CardGenerator thisCard = dealer.getCard(dealer.getCardCount());
+		thisCard.shuffle();
+		thisCard.updateImage();
+		if (thisCard.getValue() > 10)
+			thisCard.setValue(10);
+		if (thisCard.getValue() == 1 && (11 + dealer.getCardsVal()) < 22 ) { // a scenario where ace will be better as 11
+			thisCard.setValue(11);			
 		}
+		dealer.incrementCardVal(thisCard.getValue());
 	}
 	
 	/**
@@ -555,6 +537,11 @@ public class BlackJackGui {
 		JOptionPane.showMessageDialog(null, "You lost!");
 		player.setRiskVal(0);
 		riskText.setText("0");
+		if (player.getBankVal() == 0) {
+			JOptionPane.showMessageDialog(frame, "Game Over, you are out of money...");
+			JDBC jdbc = new JDBC();
+			jdbc.connect(player.getPlayerName(), player.getRecord());
+		}
 		resetGame();
 	}
 	private void tieScenario() {
