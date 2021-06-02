@@ -25,6 +25,7 @@ public class Player {
 	private int cardCount;
 	private int record;
 	private String playerName;
+	private boolean sentRecord;
 
 
 	public static void main(String[] args) {
@@ -106,6 +107,12 @@ public class Player {
 	}
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
+	}
+	public boolean isSentRecord() {
+		return sentRecord;
+	}
+	public void setSentRecord(boolean sentRecord) {
+		this.sentRecord = sentRecord;
 	}
 
 
