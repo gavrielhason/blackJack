@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -68,6 +69,8 @@ public class BlackJackGui {
 	
 	private Player player = new Player();
 	private Player dealer = new Player();
+	private JDBC jdbc     = new JDBC();
+
 	
 	private ArrayList<JToggleButton> dealerCardsButton = new ArrayList<JToggleButton>();
 
@@ -90,7 +93,7 @@ public class BlackJackGui {
 			JOptionPane.showMessageDialog(frame, "you are a boring user... THIS IS ON YOU! :(");
 		}
 		
-		frame = new JFrame("BlackJack Game");
+		frame = new JFrame(player.getPlayerName() + " - BlackJack Game");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		background = new JPanel();
 		background.setLayout(new GridLayout(1,3));
@@ -163,20 +166,37 @@ public class BlackJackGui {
 						JOptionPane.YES_NO_OPTION,
 						JOptionPane.QUESTION_MESSAGE,null,null,
 						JOptionPane.NO_OPTION);
-				if (result == JOptionPane.YES_OPTION)
+				if (result == JOptionPane.YES_OPTION) {
+					if (!player.isSentRecord()) jdbc.connect(player.getPlayerName(), player.getRecord());
 					System.exit(0);
+				}
+					
 					
 			}
 		});
 		
 		JMenuItem aboutItem = new JMenuItem("About");
-		viewMenu.add(aboutItem);
+		JMenuItem hallOfFame = new JMenuItem("Hall Of Fame");
 		
-		aboutItem.addActionListener(new ActionListener( ) {
+		viewMenu.add(aboutItem);
+		viewMenu.add(hallOfFame);
+		
+		aboutItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(frame, "This game created by Gavriel Hason, Mars Hill University");
+			}
+			
+		});
+		
+		hallOfFame.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JDialog hallDialog = jdbc.getHallOfFameDialog();
+				center(hallDialog);
+				hallDialog.setVisible(true);
 			}
 			
 		});
@@ -391,7 +411,6 @@ public class BlackJackGui {
 			for (ButtonHandler h : handlers) {
 				if (h.canHandle((JButton) e.getSource())) {
 					h.setAmount();
-					System.out.println(player.getBankVal() + "," + player.getRiskVal());
 				}
 			}
 		}
@@ -538,9 +557,9 @@ public class BlackJackGui {
 		player.setRiskVal(0);
 		riskText.setText("0");
 		if (player.getBankVal() == 0) {
-			JOptionPane.showMessageDialog(frame, "Game Over, you are out of money...");
-			JDBC jdbc = new JDBC();
 			jdbc.connect(player.getPlayerName(), player.getRecord());
+			player.setSentRecord(true);
+			JOptionPane.showMessageDialog(frame, "Game Over, you are out of money...");
 		}
 		resetGame();
 	}
